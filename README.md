@@ -1,8 +1,8 @@
 # 人生クエスト V3
 
 ## スクリーンショット
-![トップ画面](./images/zengamen.png)
-![クエスト一覧画面](./images/questform.png)
+![トップ画面](./zengamen.png)
+![クエスト一覧画面](./questform.png)
 
 日々のタスクを「クエスト」として管理し、
 ゲーム感覚で継続できるよう設計したWebアプリです。
