@@ -590,7 +590,15 @@ function render() {
 
 function createQuestItem(quest) {
     const li = document.createElement("li")
+
+    const today = getTodayText()
+
+    if(!quest.completed && quest.deadline === today) {
+        li.classList.add("today-quest")
+    }
+
     const deadlineInfo = getDeadlineInfo(quest.deadline)
+    
 
     const titleSpan = document.createElement("span")
     titleSpan.className = "quest-title"
@@ -602,6 +610,10 @@ function createQuestItem(quest) {
     const deadlineSpan = document.createElement("span")
     deadlineSpan.className = "quest-deadline"
     deadlineSpan.textContent = deadlineInfo.text
+
+    if (quest.deadline === today) {
+        deadlineSpan.classList.add("deadline-today")
+    }
 
     const sizeSpan = document.createElement("span")
     sizeSpan.className = `quest-size size-${quest.size}`
