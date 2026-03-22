@@ -1,5 +1,6 @@
 # 人生クエスト V3
 
+## スクリーンショット
 ![トップ画面](./images/zengamen.png)
 ![クエスト一覧画面](./images/questform.png)
 
