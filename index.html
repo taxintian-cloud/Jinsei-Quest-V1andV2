@@ -92,6 +92,42 @@
         クエスト開始！
     </div>
     <div id="to-top">▲</div>
+    <button id="help-btn" aria-label="使い方を見る">？</button>
+        <div id="help-modal" class="hidden">
+        <div class="help-modal-overlay"></div>
+        <div class="help-modal-box">
+            <h2>人生クエストの遊び方</h2>
+            <ol>
+            <li>クエスト名・サイズ・期限を入力して受注します</li>
+            <li>達成したら「達成報告」でExpを獲得します</li>
+            <li>積み上げるほどレベルアップして成長できます</li>
+            </ol>
+            <div class="help-quest-size">
+                <h3>クエストサイズについて</h3>
+                <ul>
+                    <li><strong>小クエスト</strong>：すぐ終わる行動向け（1〜3日 / 10Exp）</li>
+                    <li><strong>中クエスト</strong>：数日かける挑戦向け（4〜7日 / 50Exp）</li>
+                    <li><strong>大クエスト</strong>：長期で挑む目標向け（8日以上 / 100Exp）</li>
+                </ul>
+                <p class="help-tip">迷ったら、まずは小クエストから始めよう！</p>
+            </div>
+            <div class="help-category-guide">
+                <h3>カテゴリについて</h3>
+                <ul>
+                    <li><strong>カテゴリ</strong>を付けると、クエストを種類ごとに整理できます</li>
+                    <li>あとから「カテゴリ管理」からまとめて追加・変更もできます</li>
+                    <li>一覧ではカテゴリごとに絞り込み表示ができます</li>
+                </ul>
+                <p class="help-tip">勉強・仕事・生活 などで分けるのがおすすめ！</p>
+            </div>
+            <div class="help-action">
+                <button id="start-first-quest" class="btn btn-primary">
+                    最初のクエストを作る
+                </button>
+            </div>
+            <button id="close-help-btn" class="btn btn-energy">閉じる</button>
+        </div>
+        </div>
 	<script src="script.js"></script>
 </body>
 </html>
