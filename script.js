@@ -21,6 +21,10 @@ const completedTitle = document.getElementById("completed-title")
 const completedQuestItems = document.getElementById("completed-quest-items")
 const questListSection = document.getElementById("quest-list")
 const categoryFilter = document.getElementById("category-filter")
+const helpBtn = document.getElementById("help-btn")
+const helpModal = document.getElementById("help-modal")
+const closeHelpBtn = document.getElementById("close-help-btn")
+const startFirstQuestBtn = document.getElementById("start-first-quest")
 
 
 let levelUpTimer = null
@@ -44,6 +48,7 @@ window.addEventListener('scroll', () => {
 //保存機能
 const savedQuests = localStorage.getItem("quests")
 const savedPlayer = localStorage.getItem("player")
+const hasSeenHelp = localStorage.getItem("hasSeenHelp")
 
 let quests = savedQuests ? JSON.parse(savedQuests) : []
 
@@ -533,6 +538,22 @@ function checkDailyReset() {
     }
 }
 
+//指示ボタンの開閉関数
+function openHelpModal() {
+    helpModal.classList.remove("hidden")
+}
+
+function closeHelpModal() {
+    helpModal.classList.add("hidden")
+}
+
+function startFirstQuestFromHelp() {
+    closeHelpModal()
+    if (questInput) {
+        questInput.focus()
+    }
+}
+
 
 //投影イベント
 function render() {
@@ -945,6 +966,32 @@ if(applyCategoryBtn) {
 }
 if(addBtn) {
     addBtn.addEventListener("click", addQuests)
+}
+if (!hasSeenHelp && helpBtn) {
+    helpBtn.classList.add("first-time")
+}
+if (helpBtn) {
+    helpBtn.addEventListener("click", openHelpModal)
+}
+
+if (closeHelpBtn) {
+    closeHelpBtn.addEventListener("click", closeHelpModal)
+}
+
+if (helpModal) {
+    helpModal.addEventListener("click", (e) => {
+        if (e.target.classList.contains("help-modal-overlay")) {
+            closeHelpModal()
+        }
+    })
+}
+if (!hasSeenHelp) {
+    openHelpModal()
+    localStorage.setItem("hasSeenHelp", "true")
+}
+
+if (startFirstQuestBtn) {
+    startFirstQuestBtn.addEventListener("click", startFirstQuestFromHelp)
 }
 playerNameInput.value = player.name
 render()
