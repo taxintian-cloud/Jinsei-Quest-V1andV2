@@ -732,6 +732,7 @@ li.complete-animate {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 24px;
 }
 
 .help-category-guide {
@@ -1165,7 +1166,7 @@ li.complete-animate {
         width: min(92%, 520px);
         max-height: 85vh;
         margin: 6vh auto 0;
-        padding: 20px;
+        padding-bottom: calc(120px + env(safe-area-inset-bottom));
     }
 }
 
