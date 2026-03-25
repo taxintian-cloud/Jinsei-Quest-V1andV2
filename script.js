@@ -25,6 +25,7 @@ const helpBtn = document.getElementById("help-btn")
 const helpModal = document.getElementById("help-modal")
 const closeHelpBtn = document.getElementById("close-help-btn")
 const startFirstQuestBtn = document.getElementById("start-first-quest")
+const recommendedQuest = document.getElementById("recommended-quest")
 
 
 let levelUpTimer = null
@@ -554,6 +555,28 @@ function startFirstQuestFromHelp() {
     }
 }
 
+function getRecommendedQuest(quests) {
+    const activeQuests = quests.filter((quest) => !quest.completed)
+
+    if (activeQuests.length === 0) return null
+
+    const sorted = [...activeQuests].sort((a, b) => {
+        const aHasDeadline = !!a.deadline
+        const bHasDeadline = !!b.deadline
+
+        if (aHasDeadline && bHasDeadline) {
+            const diff = new Date(a.deadline) - new Date(b.deadline)
+            if (diff !== 0) return diff
+        }
+
+        if (aHasDeadline && !bHasDeadline) return -1
+        if (!aHasDeadline && bHasDeadline) return 1
+
+        return b.id - a.id
+    })
+
+    return sorted[0]
+}
 
 //投影イベント
 function render() {
@@ -577,6 +600,21 @@ function render() {
     const filteredTodayQuests = selectedCategory
         ? todayQuests.filter((quest) => quest.category?.trim() === selectedCategory)
         : todayQuests
+
+    const recommended = getRecommendedQuest(quests)
+
+if (recommended) {
+    recommendedQuest.classList.remove("hidden")
+    recommendedQuest.innerHTML = `
+        <h3>今日のおすすめクエスト</h3>
+        <p>🔥 今日の最優先クエスト</p>
+        <p data-id="${recommended.id}" class="recommended-item">
+            ${recommended.title}
+        </p>
+    `
+} else {
+    recommendedQuest.classList.add("hidden")
+}
 
     completedQuests
     
@@ -851,6 +889,7 @@ function addQuests() {
     questSize.value = ""
     deadlineInput.value = ""
     categoryInput.value = ""
+    questInput.focus()
 }
 
 
@@ -995,3 +1034,22 @@ if (startFirstQuestBtn) {
 }
 playerNameInput.value = player.name
 render()
+
+recommendedQuest.addEventListener("click", (e) => {
+    if (!e.target.dataset.id) return
+
+    const id = Number(e.target.dataset.id)
+    const targetButton = document.querySelector(`button[data-id="${id}"][data-type="toggle"]`)
+
+    if (targetButton) {
+    const li = targetButton.closest("li")
+    if (li) {
+        li.scrollIntoView({ behavior: "smooth", block: "center" })
+
+        li.classList.add("highlight")
+        setTimeout(() => {
+            li.classList.remove("highlight")
+        }, 1000)
+    }
+}
+})
