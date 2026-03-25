@@ -211,15 +211,6 @@ h2, h3 {
             filter 0.18s ease;
     }
 
-#quest-input {
-    flex: 1 1 260px;
-    min-width: 220px;
-}
-
-#quest-size,
-#deadline-input {
-    flex: 0 1 auto;
-}
 
 
 
@@ -260,7 +251,7 @@ h2, h3 {
 
 input,
 select {
-    height: 48px;
+    height: auto;
     box-sizing: border-box;
     background: #fff9e8;
     color: #2b2b2b;
@@ -394,6 +385,42 @@ button:active {
 }
 li.complete-animate {
     animation: flash 0.4s ease;
+}
+
+#recommended-quest {
+    width: 90%;
+    max-width: 850px;
+    margin: 0 auto 20px;
+    padding: 16px 20px;
+    background: rgba(255, 215, 0, 0.18);
+    border: 3px solid #b8860b;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.35);
+}
+
+#recommended-quest h3 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #8b5a00;
+}
+
+#recommended-quest p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2b1a0f;
+}
+
+.recommended-item {
+    cursor: pointer;
+}
+.recommended-item:hover {
+    text-decoration: underline;
+}
+
+.highlight {
+    box-shadow: 0 0 15px gold;
+    transition: 0.3s;
 }
 
 #today-title {
@@ -950,9 +977,82 @@ li.complete-animate {
     }
 }
 
+@media (max-width: 1600px) {
+    #quest-form {
+        max-width: 380px !important;
+        margin: 12px auto !important;
+        padding: 12px !important;
+        background: rgba(244, 236, 216, 0.96) !important;
+        border: 4px solid #3a2e1f !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+    }
 
+    .quest-form-bg {
+        display: none !important;
+    }
 
-    
+    .quest-form-inner {
+        position: static !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        gap: 6px !important;
+    }
+
+    .quest-form-row {
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+
+    #quest-input {
+        flex: none !important;
+        height: 48px !important;
+        width: 100% !important;
+        font-size: 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    #quest-size,
+    #deadline-input,
+    #category-input {
+        flex: none !important;
+        width: 100% !important;
+        height: 36px !important;
+        font-size: 14px !important;
+        box-sizing: border-box !important;
+    }
+
+    #quest-form h2 {
+        font-size: 22px !important;
+        margin-bottom: 6px !important;
+    }
+    #player-name {
+        padding: 12px !important;
+        gap: 6px !important;
+        align-items: center;
+    }
+
+    #player-name label {
+        font-size: 14px !important;
+        text-align: center;
+    }
+
+    #player-name-input {
+        width: 200px !important;   /* ←ここが本命 */
+        max-width: none !important;
+        text-align: center;
+    }
+
+    #save-name-btn {
+        height: 40px !important;
+        padding: 0 20px !important;
+        font-size: 14px !important;
+    }
+}
+
     
 @media (max-width: 768px) {
     body {
