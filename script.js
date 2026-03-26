@@ -556,26 +556,121 @@ function startFirstQuestFromHelp() {
 }
 
 function getRecommendedQuest(quests) {
-    const activeQuests = quests.filter((quest) => !quest.completed)
+    const baseQuests = selectedCategory
+        ? quests.filter((quest) =>
+            !quest.completed &&
+            quest.category?.trim() === selectedCategory
+        )
+        : quests.filter((quest) => !quest.completed)
 
-    if (activeQuests.length === 0) return null
+    if (baseQuests.length === 0) return null
 
-    const sorted = [...activeQuests].sort((a, b) => {
-        const aHasDeadline = !!a.deadline
-        const bHasDeadline = !!b.deadline
+    const today = getTodayText()
 
-        if (aHasDeadline && bHasDeadline) {
-            const diff = new Date(a.deadline) - new Date(b.deadline)
-            if (diff !== 0) return diff
+    const scoredQuests = baseQuests.map((quest) => {
+        let score = 0
+
+        // 期限あり優先
+        if (quest.deadline) {
+            const deadline = new Date(quest.deadline)
+            const todayDate = new Date(today)
+
+            deadline.setHours(0, 0, 0, 0)
+            todayDate.setHours(0, 0, 0, 0)
+
+            const diffDays = Math.floor((deadline - todayDate) / (1000 * 60 * 60 * 24))
+
+            if (diffDays === 0) {
+                score += 1000 // 今日まで最優先
+            } else if (diffDays === 1) {
+                score += 800 // 明日まで
+            } else if (diffDays < 0) {
+                score += 900 // 期限切れもかなり優先
+            } else {
+                score += 600 - diffDays // 近いほど高得点
+            }
+        } else {
+            score += 100
         }
 
-        if (aHasDeadline && !bHasDeadline) return -1
-        if (!aHasDeadline && bHasDeadline) return 1
+        // 小さく着手しやすいものを少し優先
+        if (quest.size === "small") score += 80
+        if (quest.size === "middle") score += 40
+        if (quest.size === "large") score += 10
 
-        return b.id - a.id
+        // 新しめのクエストも少し優先
+        score += quest.id / 1000000
+
+        return {
+            ...quest,
+            score
+        }
     })
 
-    return sorted[0]
+    scoredQuests.sort((a, b) => b.score - a.score)
+
+    return scoredQuests[0]
+}
+function getRecommendedReason(quest) {
+    if (!quest) return ""
+
+    const today = new Date(getTodayText())
+    today.setHours(0, 0, 0, 0)
+
+    if (quest.deadline) {
+        const deadline = new Date(quest.deadline)
+        deadline.setHours(0, 0, 0, 0)
+
+        const diffDays = Math.floor((deadline - today) / (1000 * 60 * 60 * 24))
+
+        if (diffDays === 0) {
+            return "🔥 今日が期限。今やる価値が一番高いクエスト"
+        }
+
+        if (diffDays === 1) {
+            return "⏰ 明日が期限。今日のうちに動くとかなり楽"
+        }
+
+        if (diffDays < 0) {
+            return `⚠️ 期限切れ中。${Math.abs(diffDays)}日遅れだから優先回収がおすすめ`
+        }
+
+        if (quest.size === "small") {
+            return `⚔️ あと${diffDays}日。小クエストだから今すぐ1歩進めやすい`
+        }
+
+        if (quest.size === "middle") {
+            return `🛡️ あと${diffDays}日。中クエストなので早め着手が安定`
+        }
+
+        return `🏹 あと${diffDays}日。長期クエストも今日の1歩で進む`
+    }
+
+    if (quest.size === "small") {
+        return "✨ 期限なしの小クエスト。勢いをつける最初の一手に最適"
+    }
+
+    if (quest.size === "middle") {
+        return "🚀 期限なしの中クエスト。今日の主力候補"
+    }
+
+    return "🌍 長期目標タイプ。少しでも前進すると後が楽になる"
+}
+function focusRecommendedQuest(questId) {
+    const target = document.querySelector(`[data-quest-id="${questId}"]`)
+
+    if (!target) return
+
+    target.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    })
+
+    target.classList.add("recommended-focus")
+
+    setTimeout(() => {
+        target.classList.remove("recommended-focus")
+    }, 1600)
 }
 
 //投影イベント
@@ -603,18 +698,25 @@ function render() {
 
     const recommended = getRecommendedQuest(quests)
 
-if (recommended) {
-    recommendedQuest.classList.remove("hidden")
-    recommendedQuest.innerHTML = `
-        <h3>今日のおすすめクエスト</h3>
-        <p>🔥 今日の最優先クエスト</p>
-        <p data-id="${recommended.id}" class="recommended-item">
-            ${recommended.title}
-        </p>
-    `
-} else {
-    recommendedQuest.classList.add("hidden")
-}
+    if (recommended) {
+        const reason = getRecommendedReason(recommended)
+
+        recommendedQuest.classList.remove("hidden")
+        recommendedQuest.innerHTML = `
+            <h3>今日のおすすめクエスト</h3>
+            <p class="recommended-lead">今やると前に進みやすい一手</p>
+            <p class="recommended-item" data-id="${recommended.id}">
+                ${recommended.title}
+            </p>
+            <p class="recommended-reason">${reason}</p>
+            <button class="btn btn-energy recommended-jump-btn" data-id="${recommended.id}">
+                このクエストを見る
+            </button>
+        `
+    } else {
+        recommendedQuest.classList.add("hidden")
+        recommendedQuest.innerHTML = ""
+    }
 
     completedQuests
     
@@ -649,6 +751,7 @@ if (recommended) {
 
 function createQuestItem(quest) {
     const li = document.createElement("li")
+    li.dataset.questId = quest.id
 
     const today = getTodayText()
 
@@ -921,8 +1024,6 @@ function getSizeLabel(size) {
     return size
 }
 
-
-
 //削除・編集ボタン
 questListSection.addEventListener("click",(e) => {
     if(!e.target.dataset.id) return
@@ -1037,6 +1138,22 @@ render()
 
 recommendedQuest.addEventListener("click", (e) => {
     if (!e.target.dataset.id) return
+
+    const target = e.target.closest("[data-id]")
+    if (!target) return
+
+    const btn = e.target.closest(".recommended-jump-btn")
+
+    if (btn) {
+        btn.classList.add("recommended-click-effect")
+
+        setTimeout(() => {
+            btn.classList.remove("recommended-click-effect")
+        }, 400)
+    }
+
+    const questId = Number(target.dataset.id)
+    focusRecommendedQuest(questId)
 
     const id = Number(e.target.dataset.id)
     const targetButton = document.querySelector(`button[data-id="${id}"][data-type="toggle"]`)
