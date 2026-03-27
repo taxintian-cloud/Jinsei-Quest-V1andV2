@@ -16,9 +16,19 @@
         <div class="left-column">
             <section id="player-name">
                 <h2 class="guild-title">冒険者登録所</h2>
-                <label for="player-name-input">冒険者名</label>
-                <input id="player-name-input" type="text">
-                <button id="save-name-btn">登録</button>
+
+                <!-- ログイン入力 -->
+                <div id="login-form">
+                    <label for="login-name-input">冒険者名</label>
+                    <input id="login-name-input" type="text" placeholder="名前を入力">
+                    <button id="login-btn">ログイン</button>
+                </div>
+
+                <!-- ログイン状態表示 -->
+                <div id="login-info" class="hidden">
+                    <p id="login-status"></p>
+                    <button id="logout-btn">ログアウト</button>
+                </div>
             </section>
 
             <section id="player-status"></section>
