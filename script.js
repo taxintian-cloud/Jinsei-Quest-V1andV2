@@ -1,6 +1,10 @@
 //DOM取得
-const playerNameInput = document.getElementById("player-name-input")
-const saveNameBtn = document.getElementById("save-name-btn")
+const loginNameInput = document.getElementById("login-name-input")
+const loginBtn = document.getElementById("login-btn")
+const logoutBtn = document.getElementById("logout-btn")
+const loginForm = document.getElementById("login-form")
+const loginInfo = document.getElementById("login-info")
+const loginStatus = document.getElementById("login-status")
 const playerStatus = document.getElementById("player-status")
 const questInput = document.getElementById("quest-input")
 const questSize = document.getElementById("quest-size")
@@ -47,59 +51,184 @@ window.addEventListener('scroll', () => {
 
 
 //保存機能
-const savedQuests = localStorage.getItem("quests")
-const savedPlayer = localStorage.getItem("player")
-const hasSeenHelp = localStorage.getItem("hasSeenHelp")
+const STORAGE_KEY = "jinseiQuestData"
 
-let quests = savedQuests ? JSON.parse(savedQuests) : []
+function getStorageKey() {
+    return "jinseiQuestData"
+}
 
-let player = savedPlayer
-    ? JSON.parse(savedPlayer)
-    : {
-        name: "名無しの冒険者",
-        level: 1,
-        currentExp: 0,
-        totalExp: 0,
-        todayExp: 0,
-        lastAccessDate: getTodayText(),
-        lastPlayDate: "",
-        streak: 0,
-        achievements: []
+function createDefaultAppData() {
+    return {
+        user: {
+            id: null,
+            name: "",
+            isGuest: true
+        },
+        player: {
+            name: "名無しの冒険者",
+            level: 1,
+            currentExp: 0,
+            totalExp: 0,
+            todayExp: 0,
+            lastAccessDate: getTodayText(),
+            lastPlayDate: "",
+            streak: 0,
+            achievements: []
+        },
+        quests: [],
+        settings: {
+            hasSeenHelp: false
+        },
+        meta: {
+            version: "6.0.0"
+        }
+    }
+}
+
+function normalizeAppData(data) {
+    const defaultData = createDefaultAppData()
+
+    return {
+        user: {
+            ...defaultData.user,
+            ...(data.user || {})
+        },
+        player: {
+            ...defaultData.player,
+            ...(data.player || {})
+        },
+        quests: Array.isArray(data.quests) ? data.quests : [],
+        settings: {
+            ...defaultData.settings,
+            ...(data.settings || {})
+        },
+        meta: {
+            ...defaultData.meta,
+            ...(data.meta || {})
+        }
+    }
+}
+
+function migrateOldData() {
+    const savedQuests = localStorage.getItem("quests")
+    const savedPlayer = localStorage.getItem("player")
+    const hasSeenHelp = localStorage.getItem("hasSeenHelp")
+
+    const appData = createDefaultAppData()
+
+    if (savedQuests) {
+        appData.quests = JSON.parse(savedQuests)
     }
 
-let needsSave = false
+    if (savedPlayer) {
+        appData.player = {
+            ...appData.player,
+            ...JSON.parse(savedPlayer)
+        }
+    }
 
-if(player.achievements === undefined) {
-    player.achievements = []
-    needsSave = true
+    appData.settings.hasSeenHelp = hasSeenHelp === "true"
+
+    return normalizeAppData(appData)
 }
-if(player.streak === undefined) {
-    player.streak = 0
-    needsSave = true
+
+function loadData() {
+    const key = getStorageKey()
+    const saved = localStorage.getItem(key)
+
+    if (saved) {
+        return normalizeAppData(JSON.parse(saved))
+    }
+
+    const migratedData = migrateOldData()
+    localStorage.setItem(key, JSON.stringify(migratedData))
+    return migratedData
 }
-if(player.lastPlayDate === undefined) {
-    player.lastPlayDate = ""
-    needsSave = true
-}
-if(player.todayExp === undefined) {
-    player.todayExp = 0
-    needsSave = true
-}
-if(player.lastAccessDate === undefined) {
-    player.lastAccessDate = getTodayText()
-    needsSave = true
-}
-if(needsSave) {
-    saveData()
-}
+
+let appData = loadData()
+let user = appData.user
+let quests = appData.quests
+let player = appData.player
+let settings = appData.settings
 let animatedExp = player.currentExp
 
+//保存処理
+function saveData() {
+    const key = getStorageKey()
+
+    appData.user = user
+    appData.quests = quests
+    appData.player = player
+    appData.settings = settings
+    appData.meta.updatedAt = new Date().toISOString()
+
+    localStorage.setItem(key, JSON.stringify(appData))
+}
+
+function loginUser(userName) {
+    user = {
+        id: userName,
+        name: userName,
+        isGuest: false
+    }
+
+    appData.user = user
+    player.name = userName
+
+    saveData()
+    renderLoginState()
+    render()
+}
+
+function logoutUser() {
+    user = {
+        id: null,
+        name: "",
+        isGuest: true
+    }
+
+    appData.user = user
+    player.name = "名無しの冒険者"
+
+    saveData()
+    renderLoginState()
+    render()
+}
+
+function renderLoginState() {
+    if (user.isGuest) {
+        loginForm.classList.remove("hidden")
+        loginInfo.classList.add("hidden")
+        loginNameInput.value = ""
+        loginStatus.textContent = ""
+    } else {
+        loginForm.classList.add("hidden")
+        loginInfo.classList.remove("hidden")
+        loginStatus.textContent = `${user.name} としてログイン中`
+    }
+}
+if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+        const userName = loginNameInput.value.trim()
+
+        if (!userName) {
+            alert("冒険者名を入力してください")
+            return
+        }
+
+        loginUser(userName)
+    })
+}
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+        logoutUser()
+    })
+}
 
 function expToNextLevel(level) {
     return 100 + (level - 1) * 10
 }
-
-
 
 //プレイヤーステータスの描画
 function renderPlayerStatus() {
@@ -179,11 +308,7 @@ function updateExpTexts() {
 }
 
 
-//保存処理
-function saveData() {
-    localStorage.setItem("quests", JSON.stringify(quests))
-    localStorage.setItem("player", JSON.stringify(player))
-}
+
 
 //初期状態
 function setQuests(updater) {
@@ -1000,18 +1125,6 @@ function addQuests() {
 }
 
 
-
-
-//名前保存イベント
-saveNameBtn.addEventListener("click", () => {
-    const name = playerNameInput.value.trim()
-    if(!name) return
-    player.name = name
-    saveData()
-    render()
-})
-
-
 //経験値の基準
 function getExpBySize(size) {
     if(size === "small") return 10
@@ -1119,9 +1232,6 @@ if(deadlineInput) {
     deadlineInput.showPicker()
 })
 }
-if (!hasSeenHelp && helpBtn) {
-    helpBtn.classList.add("first-time")
-}
 if (helpBtn) {
     helpBtn.addEventListener("click", openHelpModal)
 }
@@ -1137,15 +1247,21 @@ if (helpModal) {
         }
     })
 }
-if (!hasSeenHelp) {
+if (!settings.hasSeenHelp && helpBtn) {
+    helpBtn.classList.add("first-time")
+}
+
+if (!settings.hasSeenHelp) {
     openHelpModal()
-    localStorage.setItem("hasSeenHelp", "true")
+    settings.hasSeenHelp = true
+    saveData()
 }
 
 if (startFirstQuestBtn) {
     startFirstQuestBtn.addEventListener("click", startFirstQuestFromHelp)
 }
-playerNameInput.value = player.name
+
+renderLoginState()
 render()
 
 recommendedQuest.addEventListener("click", (e) => {
