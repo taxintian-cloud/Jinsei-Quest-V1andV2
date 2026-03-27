@@ -420,26 +420,25 @@ function getDeadlineInfo(deadline) {
 //ソート機能
 function getSortedQuests(quests) {
 
-const activeQuests = quests.filter((quest) => !quest.completed)
+    const activeQuests = quests.filter((quest) => !quest.completed)
 
-const withDeadline = activeQuests
-    .filter((quest) => quest.deadline)
-    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+    const withDeadline = activeQuests
+        .filter((quest) => quest.deadline)
+        .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
 
-const noDeadline = activeQuests
-    .filter((quest) => !quest.deadline)
-    .sort((a, b) => b.id - a.id)
+    const noDeadline = activeQuests
+        .filter((quest) => !quest.deadline)
+        .sort((a, b) => b.id - a.id)
 
-const completedQuests = quests
-    .filter((quest) => quest.completed)
-    .sort((a, b) => b.id - a.id)
+    const completedQuests = quests
+        .filter((quest) => quest.completed)
+        .sort((a, b) => b.id - a.id)
 
-return [
-    ...withDeadline,
-    ...noDeadline,
-    ...completedQuests
-]
-
+    return [
+        ...withDeadline,
+        ...noDeadline,
+        ...completedQuests
+    ]
 }
 
 function renderCategoryFilterOptions(quests) {
@@ -449,16 +448,21 @@ function renderCategoryFilterOptions(quests) {
             .filter((category) => category)
     )]
 
+    // 🔥 ここ追加（あいうえお順）
+    const sortedCategories = [...categories].sort((a, b) =>
+        a.localeCompare(b, 'ja')
+    )
+
     categoryFilter.innerHTML = `<option value="">すべてのカテゴリ</option>`
 
-    categories.forEach((category) => {
+    sortedCategories.forEach((category) => {
         const option = document.createElement("option")
         option.value = category
         option.textContent = category
         categoryFilter.appendChild(option)
     })
 
-    if (!categories.includes(selectedCategory)) {
+    if (!sortedCategories.includes(selectedCategory)) {
         selectedCategory = ""
     }
 
@@ -1106,6 +1110,14 @@ if(applyCategoryBtn) {
 }
 if(addBtn) {
     addBtn.addEventListener("click", addQuests)
+}
+if(deadlineInput) {
+    deadlineInput.addEventListener("click", () => {
+        deadlineInput.showPicker()
+    })
+    deadlineInput.addEventListener("focus", () => {
+    deadlineInput.showPicker()
+})
 }
 if (!hasSeenHelp && helpBtn) {
     helpBtn.classList.add("first-time")
