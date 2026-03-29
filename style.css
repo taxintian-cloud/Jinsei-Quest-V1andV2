@@ -411,6 +411,22 @@ select:focus {
     z-index: 2;
 }
 
+#backup-btn {
+    margin-top: 8px;
+}
+
+#restore-btn {
+    margin-top: 8px;
+}
+
+#restore-file {
+    width: 100%;
+    max-width: 280px;
+    margin-top: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
 #save-name-btn {
     min-width: 140px;
     height: 46px;
