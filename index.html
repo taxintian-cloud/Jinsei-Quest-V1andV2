@@ -26,11 +26,23 @@
 
                 <!-- ログイン状態表示 -->
                 <div id="login-info" class="hidden">
-                    <p id="login-status"></p>
-                    <button id="logout-btn">ログアウト</button>
-                    <button id="backup-btn">バックアップ</button>
-                    <input type="file" id="restore-file" accept=".json,application/json">
-                    <button id="restore-btn">復元</button>
+                    <div class="login-status-group">
+                        <p id="login-status"></p>
+                    </div>
+
+                    <div class="login-action-group">
+                        <button id="logout-btn">ログアウト</button>
+                    </div>
+
+                    <div class="data-manage-group">
+                        <p class="section-label">データ管理</p>
+                        <button id="backup-btn">バックアップ</button>
+
+                        <div class="restore-group">
+                            <input type="file" id="restore-file" accept=".json,application/json">
+                            <button id="restore-btn">復元</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -146,6 +158,7 @@
             <button id="close-help-btn" class="btn btn-energy">閉じる</button>
         </div>
         </div>
+        <div id="toast" class="toast hidden">保存しました！</div>
 	<script src="script.js"></script>
 </body>
 </html>
