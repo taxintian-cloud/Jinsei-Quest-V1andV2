@@ -2,6 +2,9 @@
 const loginNameInput = document.getElementById("login-name-input")
 const loginBtn = document.getElementById("login-btn")
 const logoutBtn = document.getElementById("logout-btn")
+const backupBtn = document.getElementById("backup-btn")
+const restoreFile = document.getElementById("restore-file")
+const restoreBtn = document.getElementById("restore-btn")
 const loginForm = document.getElementById("login-form")
 const loginInfo = document.getElementById("login-info")
 const loginStatus = document.getElementById("login-status")
@@ -56,16 +59,15 @@ const STORAGE_KEY = "jinseiQuestData"
 function getStorageKey() {
     return "jinseiQuestData"
 }
-
-function createDefaultAppData() {
+function createDefaultUserData(userId = null, userName = "名無しの冒険者", isGuest = true) {
     return {
         user: {
-            id: null,
-            name: "",
-            isGuest: true
+            id: userId,
+            name: userName,
+            isGuest
         },
         player: {
-            name: "名無しの冒険者",
+            name: userName,
             level: 1,
             currentExp: 0,
             totalExp: 0,
@@ -78,9 +80,21 @@ function createDefaultAppData() {
         quests: [],
         settings: {
             hasSeenHelp: false
+        }
+    }
+}
+
+function createDefaultAppData() {
+    const guestUser = createDefaultUserData("guest", "名無しの冒険者", true)
+
+    return {
+        currentUserId: "guest",
+        users: {
+            guest: guestUser
         },
         meta: {
-            version: "6.0.0"
+            version: "6.2.0",
+            updatedAt: new Date().toISOString()
         }
     }
 }
@@ -88,23 +102,53 @@ function createDefaultAppData() {
 function normalizeAppData(data) {
     const defaultData = createDefaultAppData()
 
+    const rawUsers = data?.users && typeof data.users === "object"
+        ? data.users
+        : {}
+
+    const normalizedUsers = {}
+
+    Object.entries(rawUsers).forEach(([userId, userData]) => {
+        const baseUser = createDefaultUserData(
+            userId,
+            userData?.user?.name || "名無しの冒険者",
+            userData?.user?.isGuest ?? false
+        )
+
+        normalizedUsers[userId] = {
+            user: {
+                ...baseUser.user,
+                ...(userData.user || {}),
+                id: userId
+            },
+            player: {
+                ...baseUser.player,
+                ...(userData.player || {})
+            },
+            quests: Array.isArray(userData.quests) ? userData.quests : [],
+            settings: {
+                ...baseUser.settings,
+                ...(userData.settings || {})
+            }
+        }
+    })
+
+    if (Object.keys(normalizedUsers).length === 0) {
+        normalizedUsers.guest = createDefaultUserData("guest", "名無しの冒険者", true)
+    }
+
+    let currentUserId = data?.currentUserId || "guest"
+
+    if (!normalizedUsers[currentUserId]) {
+        currentUserId = Object.keys(normalizedUsers)[0]
+    }
+
     return {
-        user: {
-            ...defaultData.user,
-            ...(data.user || {})
-        },
-        player: {
-            ...defaultData.player,
-            ...(data.player || {})
-        },
-        quests: Array.isArray(data.quests) ? data.quests : [],
-        settings: {
-            ...defaultData.settings,
-            ...(data.settings || {})
-        },
+        currentUserId,
+        users: normalizedUsers,
         meta: {
             ...defaultData.meta,
-            ...(data.meta || {})
+            ...(data?.meta || {})
         }
     }
 }
@@ -117,19 +161,32 @@ function migrateOldData() {
     const appData = createDefaultAppData()
 
     if (savedQuests) {
-        appData.quests = JSON.parse(savedQuests)
+        appData.users.guest.quests = JSON.parse(savedQuests)
     }
 
     if (savedPlayer) {
-        appData.player = {
-            ...appData.player,
+        appData.users.guest.player = {
+            ...appData.users.guest.player,
             ...JSON.parse(savedPlayer)
         }
     }
 
-    appData.settings.hasSeenHelp = hasSeenHelp === "true"
+    appData.users.guest.settings.hasSeenHelp = hasSeenHelp === "true"
 
     return normalizeAppData(appData)
+}
+
+function getCurrentUserData() {
+    return appData.users[appData.currentUserId]
+}
+
+function syncCurrentUserRefs() {
+    const currentUserData = getCurrentUserData()
+
+    user = currentUserData.user
+    player = currentUserData.player
+    quests = currentUserData.quests
+    settings = currentUserData.settings
 }
 
 function loadData() {
@@ -137,7 +194,46 @@ function loadData() {
     const saved = localStorage.getItem(key)
 
     if (saved) {
-        return normalizeAppData(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+
+        if (parsed.users && parsed.currentUserId) {
+            return normalizeAppData(parsed)
+        }
+
+        if (parsed.user || parsed.player || parsed.quests || parsed.settings) {
+            const migrated = createDefaultAppData()
+
+            const userId = parsed.user?.id || "guest"
+            const userName = parsed.user?.name || parsed.player?.name || "名無しの冒険者"
+            const isGuest = parsed.user?.isGuest ?? true
+
+            migrated.currentUserId = userId
+            migrated.users[userId] = createDefaultUserData(userId, userName, isGuest)
+
+            migrated.users[userId].user = {
+                ...migrated.users[userId].user,
+                ...(parsed.user || {}),
+                id: userId,
+                name: userName,
+                isGuest
+            }
+
+            migrated.users[userId].player = {
+                ...migrated.users[userId].player,
+                ...(parsed.player || {})
+            }
+
+            migrated.users[userId].quests = Array.isArray(parsed.quests) ? parsed.quests : []
+
+            migrated.users[userId].settings = {
+                ...migrated.users[userId].settings,
+                ...(parsed.settings || {})
+            }
+
+            const normalized = normalizeAppData(migrated)
+            localStorage.setItem(key, JSON.stringify(normalized))
+            return normalized
+        }
     }
 
     const migratedData = migrateOldData()
@@ -146,34 +242,84 @@ function loadData() {
 }
 
 let appData = loadData()
-let user = appData.user
-let quests = appData.quests
-let player = appData.player
-let settings = appData.settings
+let user
+let quests
+let player
+let settings
+
+syncCurrentUserRefs()
+
 let animatedExp = player.currentExp
 
 //保存処理
 function saveData() {
-    const key = getStorageKey()
+    const currentUserId = appData.currentUserId
 
-    appData.user = user
-    appData.quests = quests
-    appData.player = player
-    appData.settings = settings
+    if (!appData.users[currentUserId]) {
+        appData.users[currentUserId] = createDefaultUserData(currentUserId, "名無しの冒険者", true)
+    }
+
+    appData.users[currentUserId].user = user
+    appData.users[currentUserId].player = player
+    appData.users[currentUserId].quests = quests
+    appData.users[currentUserId].settings = settings
+
     appData.meta.updatedAt = new Date().toISOString()
 
-    localStorage.setItem(key, JSON.stringify(appData))
+    localStorage.setItem(getStorageKey(), JSON.stringify(appData))
+}
+
+function exportBackup() {
+    const backupData = localStorage.getItem("jinseiQuestData")
+
+    if (!backupData) {
+        alert("バックアップ対象のデータがありません")
+        return
+    }
+
+    const blob = new Blob([backupData], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `jinseiQuest_backup_${new Date().toISOString().slice(0,10)}.json`
+    a.click()
+
+    URL.revokeObjectURL(url)
+}
+
+function importBackup(jsonString) {
+    try {
+        JSON.parse(jsonString)
+        localStorage.setItem("jinseiQuestData", jsonString)
+        alert("バックアップを復元しました。リロードします。")
+        location.reload()
+    } catch (error) {
+        alert("JSON形式が正しくありません")
+        console.error(error)
+    }
 }
 
 function loginUser(userName) {
-    user = {
-        id: userName,
-        name: userName,
+    const userId = userName.trim()
+
+    if (!userId) return
+
+    if (!appData.users[userId]) {
+        appData.users[userId] = createDefaultUserData(userId, userId, false)
+    }
+
+    appData.currentUserId = userId
+
+    appData.users[userId].user = {
+        ...appData.users[userId].user,
+        id: userId,
+        name: userId,
         isGuest: false
     }
 
-    appData.user = user
-    player.name = userName
+    syncCurrentUserRefs()
+    animatedExp = player.currentExp
 
     saveData()
     renderLoginState()
@@ -181,14 +327,14 @@ function loginUser(userName) {
 }
 
 function logoutUser() {
-    user = {
-        id: null,
-        name: "",
-        isGuest: true
+    if (!appData.users.guest) {
+        appData.users.guest = createDefaultUserData("guest", "名無しの冒険者", true)
     }
 
-    appData.user = user
-    player.name = "名無しの冒険者"
+    appData.currentUserId = "guest"
+
+    syncCurrentUserRefs()
+    animatedExp = player.currentExp
 
     saveData()
     renderLoginState()
@@ -223,6 +369,32 @@ if (loginBtn) {
 if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
         logoutUser()
+    })
+}
+
+if (backupBtn) {
+    backupBtn.addEventListener("click", () => {
+        exportBackup()
+    })
+}
+
+if (restoreBtn) {
+    restoreBtn.addEventListener("click", () => {
+        const file = restoreFile.files[0]
+
+        if (!file) {
+            alert("バックアップファイルを選択してください")
+            return
+        }
+
+        const reader = new FileReader()
+
+        reader.onload = () => {
+            const jsonString = reader.result
+            importBackup(jsonString)
+        }
+
+        reader.readAsText(file)
     })
 }
 
@@ -1224,13 +1396,12 @@ if(applyCategoryBtn) {
 if(addBtn) {
     addBtn.addEventListener("click", addQuests)
 }
-if(deadlineInput) {
+if (deadlineInput) {
     deadlineInput.addEventListener("click", () => {
-        deadlineInput.showPicker()
+        if (typeof deadlineInput.showPicker === "function") {
+            deadlineInput.showPicker()
+        }
     })
-    deadlineInput.addEventListener("focus", () => {
-    deadlineInput.showPicker()
-})
 }
 if (helpBtn) {
     helpBtn.addEventListener("click", openHelpModal)
