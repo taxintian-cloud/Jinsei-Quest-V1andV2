@@ -286,14 +286,21 @@ function exportBackup() {
     a.click()
 
     URL.revokeObjectURL(url)
+
+    showToast("バックアップを保存しました！")
 }
 
 function importBackup(jsonString) {
     try {
         JSON.parse(jsonString)
         localStorage.setItem("jinseiQuestData", jsonString)
-        alert("バックアップを復元しました。リロードします。")
-        location.reload()
+
+        showToast("バックアップを復元しました！")
+
+        setTimeout(() => {
+            location.reload()
+        }, 1200)
+
     } catch (error) {
         alert("JSON形式が正しくありません")
         console.error(error)
@@ -396,6 +403,25 @@ if (restoreBtn) {
 
         reader.readAsText(file)
     })
+}
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.classList.remove("hidden");
+
+    setTimeout(() => {
+        toast.classList.add("show");
+    }, 10);
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+
+        setTimeout(() => {
+            toast.classList.add("hidden");
+        }, 300);
+    }, 2000);
 }
 
 function expToNextLevel(level) {
