@@ -412,20 +412,25 @@ select:focus {
     z-index: 2;
 }
 
-#backup-btn {
-    margin-top: 8px;
-}
-
 #logout-btn {
     background: linear-gradient(to bottom, #d97a7a, #8b2e2e);
 }
 
 #backup-btn {
+    margin-top: 8px;
     background: linear-gradient(to bottom, #7aa7d9, #3d5a80);
 }
 
 #restore-btn {
     background: linear-gradient(to bottom, #6ccf7d, #2f7a3d);
+}
+
+#start-first-quest,
+#login-btn,
+#logout-btn,
+#backup-btn,
+#restore-btn {
+    border-radius: 8px;
 }
 
 #login-info {
@@ -947,7 +952,8 @@ li.complete-animate {
     transition: 
         opacity 0.4s ease,
         transform 0.4s ease,
-        box-shadow 0.2s ease;
+        all 0.2s ease,
+        box-shadow 0.6s ease;
     
     z-index: 1000;
 }
@@ -963,9 +969,29 @@ li.complete-animate {
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
-#to-top:active {
+#to-top.flash {
+    animation: flashGlow 0.6s ease;
     transform: translateY(0);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    box-shadow:
+        0 0 25px rgba(255, 255, 0, 1),
+        0 0 50px rgba(255, 200, 0, 0.9),
+        0 0 80px rgba(255, 150, 0, 0.7);
+}
+
+@keyframes flashGlow {
+    0% {
+        box-shadow:
+            0 0 0 rgba(255,255,0,0);
+    }
+    40% {
+        box-shadow:
+            0 0 60px rgba(255,255,0,1),
+            0 0 100px rgba(255,200,0,0.9);
+    }
+    100% {
+        box-shadow:
+            0 0 20px rgba(255,200,0,0.6);
+    }
 }
 
 #help-btn {
@@ -1000,10 +1026,9 @@ li.complete-animate {
 }
 
 .help-tip {
-    margin-top: 12px;
+    color: #b3541e;
     font-weight: bold;
-    color: #5a2f12;
-    text-align: center;
+    font-size: 18px;
 }
 
 #help-modal {
@@ -1016,6 +1041,14 @@ li.complete-animate {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
+}
+
+#help-modal li {
+    margin-bottom: 10px;
+}
+
+#help-modal li strong {
+    letter-spacing: 0.5px;
 }
 
 .help-modal-box {
@@ -1031,6 +1064,28 @@ li.complete-animate {
     z-index: 2001;
     overflow-y: auto;
 }
+
+.help-title {
+    color: #ffcc00;
+
+    text-shadow:
+        /* 1px */
+        1px 0 0 #000,
+        -1px 0 0 #000,
+        0 1px 0 #000,
+        0 -1px 0 #000,
+        1px 1px 0 #000,
+        -1px 1px 0 #000,
+        1px -1px 0 #000,
+        -1px -1px 0 #000,
+
+        /* 2px */
+        2px 0 0 #000,
+        -2px 0 0 #000,
+        0 2px 0 #000,
+        0 -2px 0 #000;
+}
+
 .help-modal-box::-webkit-scrollbar {
     width: 8px;
 }
@@ -1040,9 +1095,28 @@ li.complete-animate {
     border-radius: 999px;
 }
 
-.help-modal-box h2 {
-    margin-top: 0;
+#help-modal h2 {
+    color: #ffcc00; 
     text-align: center;
+    font-size: 22px;
+    
+}
+
+#help-modal h3 {
+    color: #4da6ff; 
+    border-bottom: 2px solid rgba(77, 166, 255, 0.4);
+    padding-bottom: 4px;
+}
+
+#help-modal p {
+    color: #5a2f12;        /* 少しだけ濃く */
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+#help-modal strong {
+    color: #d35400; /* オレンジ系 */
+    font-weight: bold;
 }
 
 .help-modal-box ol {
@@ -1101,6 +1175,30 @@ li.complete-animate {
 }
 
 .help-category-guide li {
+    margin-bottom: 8px;
+    line-height: 1.7;
+}
+
+.help-data-guide {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(255, 249, 232, 0.9);
+    border: 2px solid #3a2e1f;
+    border-radius: 8px;
+}
+
+.help-data-guide h3 {
+    margin: 0 0 12px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.help-data-guide ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.help-data-guide li {
     margin-bottom: 8px;
     line-height: 1.7;
 }
