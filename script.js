@@ -49,6 +49,12 @@ window.addEventListener('scroll', () => {
     });
 
     toTopBtn.addEventListener('click', () => {
+        toTopBtn.classList.add('flash');
+
+        setTimeout(() => {
+            toTopBtn.classList.remove("flash")
+        }, 600)
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -59,11 +65,18 @@ const STORAGE_KEY = "jinseiQuestData"
 function getStorageKey() {
     return "jinseiQuestData"
 }
+
+function createLocalUserId(userName) {
+    return userName.trim()
+}
+
 function createDefaultUserData(userId = null, userName = "名無しの冒険者", isGuest = true) {
     return {
         user: {
             id: userId,
             name: userName,
+            email: "",
+            authProvider: "local",
             isGuest
         },
         player: {
@@ -266,6 +279,8 @@ function saveData() {
 
     appData.meta.updatedAt = new Date().toISOString()
 
+    // V6: localStorage 保存
+    // V7: Firebase連携時はここでクラウド保存も分岐予定
     localStorage.setItem(getStorageKey(), JSON.stringify(appData))
 }
 
@@ -307,13 +322,27 @@ function importBackup(jsonString) {
     }
 }
 
+function migrateLocalDataToCloud() {
+    // V7で実装
+    // localStorage の現在ユーザーデータをクラウドへ送る
+}
+
+async function loadUserDataFromCloud(userId) {
+    // V7で実装
+}
+
+async function saveUserDataToCloud(userId, userData) {
+    // V7で実装
+}
+
 function loginUser(userName) {
-    const userId = userName.trim()
+    const trimmedName = userName.trim()
+    const userId = createLocalUserId(trimmedName)
 
     if (!userId) return
 
     if (!appData.users[userId]) {
-        appData.users[userId] = createDefaultUserData(userId, userId, false)
+        appData.users[userId] = createDefaultUserData(userId, trimmedName, false)
     }
 
     appData.currentUserId = userId
@@ -321,7 +350,9 @@ function loginUser(userName) {
     appData.users[userId].user = {
         ...appData.users[userId].user,
         id: userId,
-        name: userId,
+        name: trimmedName,
+        email: appData.users[userId].user.email || "",
+        authProvider: appData.users[userId].user.authProvider || "local",
         isGuest: false
     }
 
@@ -357,6 +388,7 @@ function renderLoginState() {
     } else {
         loginForm.classList.add("hidden")
         loginInfo.classList.remove("hidden")
+        // 将来: Firebase連携時は user.email も表示候補
         loginStatus.textContent = `${user.name} としてログイン中`
     }
 }
@@ -538,16 +570,61 @@ function unlockAchievement(key) {
     if(player.achievements.includes(key)) return
 
     player.achievements.push(key)
+
+    showToast(`実績解除！ ${getAchievementLabel(key)}`)
     saveData()
 }
 
+function syncAchievementsByProgress() {
+    if(player.level >= 5) {
+        unlockAchievement("level-5")
+    }
+    if(player.level >= 10) {
+        unlockAchievement("level-10")
+    }
+    if(player.level >= 15) {
+        unlockAchievement("level-15")
+    }
+    if(player.level >= 20) {
+        unlockAchievement("level-20")
+    }
+
+    if(player.streak >= 10) {
+        unlockAchievement("streak-10")
+    }
+    if(player.streak >= 30) {
+        unlockAchievement("streak-30")
+    }
+    if(player.streak >= 50) {
+        unlockAchievement("streak-50")
+    }
+    if(player.streak >= 77) {
+        unlockAchievement("streak-77")
+    }
+    if(player.streak >= 100) {
+        unlockAchievement("streak-100")
+    }
+}
 
 //実績一覧
+const achievementMap = {
+    "first-clear": "はじめての達成！",
+    "level-5": "見習い卒業！",
+    "large-quest-clear": "大いなる一歩",
+
+    "level-10": "習慣化プレイヤー！",
+    "level-15": "オーバーランダー初心者！",
+    "level-20": "止まらぬ冒険者！",
+
+    "streak-10": "10日継続の冒険者！",
+    "streak-30": "30日継続の冒険者！",
+    "streak-50": "50日継続の冒険者！",
+    "streak-77": "77日継続の冒険者！",
+    "streak-100": "100日継続の伝説！",
+}
+
 function getAchievementLabel(key) {
-    if(key === "first-clear") return "はじめての達成！"
-    if(key === "level-5") return "見習い卒業！"
-    if(key === "large-quest-clear") return "大いなる一歩"
-    return key
+    return achievementMap[key] || key
 }
 
 
@@ -578,6 +655,23 @@ function updateStreakOnQuestClear() {
     } else if(diff > oneDay) {
         player.streak = 1
     }
+
+    if(player.streak >= 10) {
+        unlockAchievement("streak-10")
+    }
+    if(player.streak >= 30) {
+        unlockAchievement("streak-30")
+    }
+    if(player.streak >= 50) {
+        unlockAchievement("streak-50")
+    }
+    if(player.streak >= 77) {
+        unlockAchievement("streak-77")
+    }
+    if(player.streak >= 100) {
+        unlockAchievement("streak-100")
+    }
+
     player.lastPlayDate = todayText
     saveData()
 }
@@ -666,6 +760,17 @@ function animateExpGain(amount) {
 
                     if(player.level >= 5) {
                         unlockAchievement("level-5")
+                    }
+                    if(player.level >= 10) {
+                        unlockAchievement("level-10")
+                    }
+
+                    if(player.level >= 15) {
+                        unlockAchievement("level-15")
+                    }
+
+                    if(player.level >= 20) {
+                        unlockAchievement("level-20")
                     }
 
                     showLevelUp()
@@ -869,6 +974,9 @@ function checkDailyReset() {
 //指示ボタンの開閉関数
 function openHelpModal() {
     helpModal.classList.remove("hidden")
+
+    const box = document.querySelector(".help-modal-box")
+    if (box) box.scrollTop = 0
 }
 
 function closeHelpModal() {
@@ -1458,6 +1566,7 @@ if (startFirstQuestBtn) {
     startFirstQuestBtn.addEventListener("click", startFirstQuestFromHelp)
 }
 
+syncAchievementsByProgress()
 renderLoginState()
 render()
 
