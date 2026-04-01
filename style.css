@@ -500,6 +500,7 @@ select:focus {
     flex-direction: column;
     gap: 8px;
     align-items: center;
+    margin-top: 8px;
 }
 
 #login-btn {
@@ -536,6 +537,13 @@ select:focus {
 
 #backup-btn {
     margin-bottom: 15px;
+}
+
+#backup-btn,
+#sync-btn {
+    width: 180px;
+    min-height: 44px;
+    margin-bottom: 8px;
 }
 
 #restore-file {
@@ -1405,6 +1413,52 @@ li.complete-animate {
         0 0 20px rgba(255,140,0,0.5);
 
     animation: energyFloat 2s ease-in-out infinite;
+}
+
+#sync-btn {
+    background: linear-gradient(to bottom, #6b8ec6, #3e5f8a);
+    color: white;
+    border: 2px solid #2f4a6e;
+    border-radius: 8px;
+    box-shadow: 0 3px 0 #2a3e5a;
+}
+#sync-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+#sync-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
+#sync-btn.is-loading {
+    animation: syncPulse 1s ease-in-out infinite;
+}
+
+@keyframes syncPulse {
+    0% {
+        filter: brightness(1);
+        transform: translateY(0);
+    }
+    50% {
+        filter: brightness(1.12);
+        transform: translateY(-1px);
+    }
+    100% {
+        filter: brightness(1);
+        transform: translateY(0);
+    }
+}
+
+.sync-status-text {
+    margin: 4px 0 10px;
+    margin-top: 2px;
+    font-size: 11px;
+    color: #6b5538;
+    opacity: 0.8;
+    text-align: center;
+    line-height: 1.5;
 }
 
 #quest-start-popup {
