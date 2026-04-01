@@ -1,8 +1,42 @@
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArqWWZCA1PEikry5v4kmTpr-3XaUMshV8",
+  authDomain: "jinsei-quest.firebaseapp.com",
+  projectId: "jinsei-quest",
+  storageBucket: "jinsei-quest.firebasestorage.app",
+  messagingSenderId: "1058623021132",
+  appId: "1:1058623021132:web:5d231aa4ea8c0f8a3214e9"
+};
+
+const app = initializeApp(firebaseConfig);
+console.log("Firebase初期化OK", app);
+
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
+
 //DOM取得
 const loginNameInput = document.getElementById("login-name-input")
 const loginBtn = document.getElementById("login-btn")
 const logoutBtn = document.getElementById("logout-btn")
 const backupBtn = document.getElementById("backup-btn")
+const syncBtn = document.getElementById("sync-btn")
+const syncStatusText = document.getElementById("sync-status-text")
 const restoreFile = document.getElementById("restore-file")
 const restoreBtn = document.getElementById("restore-btn")
 const loginForm = document.getElementById("login-form")
@@ -38,6 +72,9 @@ const recommendedQuest = document.getElementById("recommended-quest")
 let levelUpTimer = null
 let isCategorySelecting = false
 let selectedCategory = ""
+let isHydratingFromCloud = false
+let isSyncing = false
+let hasShownAutoSyncToast = false;
 
 
 window.addEventListener('scroll', () => {
@@ -193,6 +230,26 @@ function getCurrentUserData() {
     return appData.users[appData.currentUserId]
 }
 
+function updateSyncStatusText(dateText) {
+    if (!syncStatusText) return
+    syncStatusText.textContent = dateText
+        ? `最終同期: ${dateText}`
+        : "最終同期: まだなし"
+}
+
+function setSyncButtonLoading(isLoading) {
+    if (!syncBtn) return
+
+    syncBtn.disabled = isLoading
+    syncBtn.textContent = isLoading ? "同期中..." : "クラウド同期"
+
+    if (isLoading) {
+        syncBtn.classList.add("is-loading")
+    } else {
+        syncBtn.classList.remove("is-loading")
+    }
+}
+
 function syncCurrentUserRefs() {
     const currentUserData = getCurrentUserData()
 
@@ -282,6 +339,14 @@ function saveData() {
     // V6: localStorage 保存
     // V7: Firebase連携時はここでクラウド保存も分岐予定
     localStorage.setItem(getStorageKey(), JSON.stringify(appData))
+
+    if (!isHydratingFromCloud && user && user.authProvider === "google" && !user.isGuest) {
+        saveUserDataToCloud(
+            currentUserId,
+            appData.users[currentUserId],
+            { showSyncToast: false }
+        )
+    }
 }
 
 function exportBackup() {
@@ -322,18 +387,242 @@ function importBackup(jsonString) {
     }
 }
 
-function migrateLocalDataToCloud() {
-    // V7で実装
-    // localStorage の現在ユーザーデータをクラウドへ送る
+async function migrateLocalDataToCloud() {
+    const localData = loadData();
+
+    if (!localData || !localData.users) {
+        alert("移行するローカルデータがありません");
+        return;
+    }
+
+    // guest以外のローカルユーザーを探す
+    const sourceUserId = Object.keys(localData.users).find((id) => id !== "guest");
+
+    if (!sourceUserId) {
+        alert("移行対象のユーザーデータが見つかりません");
+        return;
+    }
+
+    const sourceUserData = localData.users[sourceUserId];
+    const targetUserId = appData.currentUserId;
+
+    if (!targetUserId || user.isGuest) {
+        alert("先にGoogleログインしてください");
+        return;
+    }
+
+    // 🔥 データコピー
+    appData.users[targetUserId] = {
+        ...sourceUserData,
+        user: {
+            ...sourceUserData.user,
+            id: targetUserId,
+            name: user.name,
+            email: user.email,
+            authProvider: "google",
+            isGuest: false
+        }
+    };
+
+    appData.currentUserId = targetUserId;
+
+    syncCurrentUserRefs();
+    animatedExp = player.currentExp;
+
+    saveData();
+    await saveUserDataToCloud(targetUserId, appData.users[targetUserId]);
+
+    renderLoginState();
+    render();
+
+    alert("ローカルデータをクラウドへ移行しました");
 }
 
 async function loadUserDataFromCloud(userId) {
-    // V7で実装
+    try {
+        const docRef = doc(db, "users", userId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("クラウド読込成功", userId);
+            return docSnap.data();
+        } else {
+            console.log("クラウドにデータなし", userId);
+            return null;
+        }
+    } catch (error) {
+        console.error("クラウド読込失敗", error);
+        return null;
+    }
 }
 
-async function saveUserDataToCloud(userId, userData) {
-    // V7で実装
+async function saveUserDataToCloud(userId, userData, options = {}) {
+    const {
+        showSyncToast = false
+    } = options
+
+    if (isSyncing) return
+
+    try {
+        isSyncing = true
+
+        if (showSyncToast) {
+            setSyncButtonLoading(true)
+            showToast("クラウド同期中...")
+        }
+
+        const now = new Date().toLocaleString("ja-JP")
+
+        await setDoc(doc(db, "users", userId), {
+            ...userData,
+            updatedAt: new Date().toISOString()
+        })
+
+        updateSyncStatusText(now)
+
+        if (showSyncToast) {
+            showToast("クラウド同期完了！")
+        }
+
+        console.log("クラウド保存成功", userId)
+    } catch (error) {
+        console.error("クラウド保存失敗", error)
+
+        if (showSyncToast) {
+            showToast("クラウド同期失敗！")
+        }
+    } finally {
+        if (showSyncToast) {
+            setSyncButtonLoading(false)
+        }
+
+        isSyncing = false
+    }
 }
+
+async function refreshCurrentUserFromCloud() {
+    if (!user || user.isGuest || user.authProvider !== "google") {
+        return;
+    }
+
+    const cloudUserData = await loadUserDataFromCloud(appData.currentUserId);
+
+    if (!cloudUserData) {
+        console.log("クラウドに最新データなし");
+        return;
+    }
+
+    appData.users[appData.currentUserId] = {
+        ...cloudUserData,
+        user: {
+            ...cloudUserData.user,
+            id: appData.currentUserId,
+            name: cloudUserData.user?.name || user.name,
+            email: cloudUserData.user?.email || user.email,
+            authProvider: "google",
+            isGuest: false
+        }
+    };
+
+    const updatedAt = cloudUserData.updatedAt;
+    if (updatedAt) {
+        updateSyncStatusText(new Date(updatedAt).toLocaleString("ja-JP"));
+    }
+
+    syncCurrentUserRefs();
+    animatedExp = player.currentExp;
+
+    renderLoginState();
+    render();
+
+    console.log("クラウド再読込成功", appData.currentUserId);
+}
+
+async function syncCurrentGoogleUser() {
+    if (!user || user.isGuest || user.authProvider !== "google") {
+        alert("Googleログイン中のみ同期できます");
+        return;
+    }
+
+    await saveUserDataToCloud(
+        appData.currentUserId,
+        appData.users[appData.currentUserId],
+        { showSyncToast: true }
+    )
+
+    await refreshCurrentUserFromCloud()
+}
+
+window.syncCurrentGoogleUser = syncCurrentGoogleUser;
+
+async function restoreGoogleSession() {
+    onAuthStateChanged(auth, async (firebaseUser) => {
+        if (!firebaseUser) {
+        updateSyncStatusText("")
+        return;
+    }
+
+        const userId = firebaseUser.uid;
+        const userName = firebaseUser.displayName || "冒険者";
+        const userEmail = firebaseUser.email || "";
+
+        isHydratingFromCloud = true;
+
+        try {
+            showToast("クラウド確認中...")
+            const cloudUserData = 
+                await loadUserDataFromCloud(userId);
+                
+
+            if (cloudUserData) {
+                appData.users[userId] = cloudUserData;
+
+                const updatedAt = cloudUserData.updatedAt;
+                if (updatedAt) {
+                    updateSyncStatusText(
+                        new Date(updatedAt).toLocaleString("ja-JP")
+                    );
+                }
+
+                if (!hasShownAutoSyncToast) {
+                    showToast("クラウドデータを読み込みました");
+                    hasShownAutoSyncToast = true;
+                }
+            } else {
+                appData.users[userId] = createDefaultUserData(userId, userName, false);
+                updateSyncStatusText("");
+            }
+
+            appData.currentUserId = userId;
+
+            appData.users[userId].user = {
+                ...appData.users[userId].user,
+                id: userId,
+                name: userName,
+                email: userEmail,
+                authProvider: "google",
+                isGuest: false
+            };
+
+            syncCurrentUserRefs();
+            animatedExp = player.currentExp;
+
+            renderLoginState();
+            render();
+
+            console.log("Googleセッション自動復元成功", firebaseUser);
+        } catch (error) {
+            console.error("Googleセッション自動復元失敗", error);
+            showToast("クラウド読込に失敗しました");
+        } finally {
+            isHydratingFromCloud = false;
+        }
+    });
+}
+
+
+
+window.refreshCurrentUserFromCloud = refreshCurrentUserFromCloud;
 
 function loginUser(userName) {
     const trimmedName = userName.trim()
@@ -379,41 +668,118 @@ function logoutUser() {
     render()
 }
 
+async function loginWithGoogle() {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const firebaseUser = result.user;
+
+        const userId = firebaseUser.uid;
+        const userName = firebaseUser.displayName || "冒険者";
+        const userEmail = firebaseUser.email || "";
+
+        const cloudUserData = await loadUserDataFromCloud(userId);
+
+        if (cloudUserData) {
+            appData.users[userId] = cloudUserData;
+
+            const updatedAt = cloudUserData.updatedAt;
+            if (updatedAt) {
+                updateSyncStatusText(new Date(updatedAt).toLocaleString("ja-JP"));
+            }
+        } else {
+            appData.users[userId] = createDefaultUserData(userId, userName, false);
+            updateSyncStatusText("");
+        }
+
+        appData.currentUserId = userId;
+
+        appData.users[userId].user = {
+            ...appData.users[userId].user,
+            id: userId,
+            name: userName,
+            email: userEmail,
+            authProvider: "google",
+            isGuest: false
+        };
+
+        syncCurrentUserRefs();
+        animatedExp = player.currentExp;
+
+        saveData();
+        renderLoginState();
+        render();
+
+        console.log("Googleログイン成功", firebaseUser);
+    } catch (error) {
+        console.error("Googleログイン失敗", error);
+        alert("Googleログインに失敗しました");
+    }
+}
+
+async function logoutFirebaseUser() {
+    try {
+        await signOut(auth);
+
+        if (!appData.users.guest) {
+            appData.users.guest = createDefaultUserData("guest", "名無しの冒険者", true);
+        }
+
+        appData.currentUserId = "guest";
+
+        syncCurrentUserRefs();
+        animatedExp = player.currentExp;
+
+        saveData();
+        renderLoginState();
+        render();
+
+        console.log("ログアウト成功");
+    } catch (error) {
+        console.error("ログアウト失敗", error);
+        alert("ログアウトに失敗しました");
+    }
+}
+
 function renderLoginState() {
     if (user.isGuest) {
         loginForm.classList.remove("hidden")
         loginInfo.classList.add("hidden")
         loginNameInput.value = ""
         loginStatus.textContent = ""
+
+        if (syncBtn) {
+            syncBtn.classList.add("hidden")
+        }
     } else {
         loginForm.classList.add("hidden")
         loginInfo.classList.remove("hidden")
-        // 将来: Firebase連携時は user.email も表示候補
         loginStatus.textContent = `${user.name} としてログイン中`
+
+        if (syncBtn) {
+            syncBtn.classList.remove("hidden")
+        }
     }
 }
 if (loginBtn) {
     loginBtn.addEventListener("click", () => {
-        const userName = loginNameInput.value.trim()
-
-        if (!userName) {
-            alert("冒険者名を入力してください")
-            return
-        }
-
-        loginUser(userName)
-    })
+        loginWithGoogle();
+    });
 }
 
 if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-        logoutUser()
-    })
+        logoutFirebaseUser();
+    });
 }
 
 if (backupBtn) {
     backupBtn.addEventListener("click", () => {
         exportBackup()
+    })
+}
+if (syncBtn) {
+    syncBtn.addEventListener("click", () => {
+        syncCurrentGoogleUser()
     })
 }
 
@@ -1569,6 +1935,7 @@ if (startFirstQuestBtn) {
 syncAchievementsByProgress()
 renderLoginState()
 render()
+restoreGoogleSession()
 
 recommendedQuest.addEventListener("click", (e) => {
     if (!e.target.dataset.id) return
