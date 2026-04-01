@@ -37,6 +37,8 @@
                     <div class="data-manage-group">
                         <p class="section-label">データ管理</p>
                         <button id="backup-btn">バックアップ</button>
+                        <button id="sync-btn" class="btn btn-energy">クラウド同期</button>
+                        <p id="sync-status-text" class="sync-status-text">最終同期: まだなし</p>
 
                         <div class="restore-group">
                             <input type="file" id="restore-file" accept=".json,application/json">
@@ -179,6 +181,6 @@
         </div>
         </div>
         <div id="toast" class="toast hidden">保存しました！</div>
-	<script src="script.js"></script>
+	<script type="module" src="script.js"></script>
 </body>
 </html>
