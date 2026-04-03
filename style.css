@@ -1733,7 +1733,7 @@ li.complete-animate {
     }
 }
 
-@media (max-width: 1600px) {
+/*@media (max-width: 1600px) {
     #quest-form {
         max-width: 760px !important;
         margin: 20px auto !important;
@@ -1796,7 +1796,7 @@ li.complete-animate {
 
     #player-name-input {
         width: 200px !important;   /* ←ここが本命 */
-        max-width: none !important;
+        /*max-width: none !important;
         text-align: center;
     }
 
@@ -1805,7 +1805,7 @@ li.complete-animate {
         padding: 0 20px !important;
         font-size: 14px !important;
     }
-}
+}*/
 
     
 @media (max-width: 768px) {
@@ -2036,13 +2036,44 @@ li.complete-animate {
         padding: 10px;
     }
 
-    .layout {
-        gap: 20px;
+    #quest-form {
+        position: relative;
+        width: 100%;
+        max-width: 360px;
+        margin: 28px auto 0;
     }
 
-    .left-column,
-    .right-column {
-        gap: 16px;
+    .quest-form-bg {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .quest-form-inner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 62%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #quest-form h2 {
+        font-size: 18px;
+        margin: 0 0 6px;
+        padding: 4px 18px;
+    }
+
+    .quest-form-row {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
     }
 
     #quest-input,
@@ -2050,119 +2081,50 @@ li.complete-animate {
     #deadline-input,
     #category-input {
         width: 100%;
-        max-width: 260px;
-        margin: 0 auto;
-        display: block;
-    }
-
-    #quest-form {
-        margin-top: 60px;
         max-width: 100%;
+        height: 34px;
+        font-size: 14px;
+        margin: 0;
     }
 
-    .quest-form-inner {
-        top: 50%;
-        width: 70%;
-    }
-
-    .quest-form-row {
-        width: 80%;
-        margin: 0 auto;
-    }
-
-    #quest-form h2 {
-        font-size: 20px;
-    }
-
-    .quest-list-title-wrap {
-        min-height: 72px;
-        padding: 10px 18px;
-    }
-
-    .quest-list-title-wrap h2 {
-        font-size: 24px;
-        transform: translateX(4px);
-    }
-
-    #today-title {
-        font-size: 20px;
-    }
-
-    #quest-items li,
-    #completed-quest-items li {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-
-    .quest-right {
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .btn-primary {
-        font-size: 15px;
-    }
-
-    .btn-icon {
-        width: 42px;
-        height: 42px;
-        font-size: 18px;
-    }
-
-    #add-btn {
+    .quest-submit {
         margin-top: 8px;
     }
 
-    #player-name {
-        padding: 16px;
-    }
-
-    #player-status {
-        padding: 14px;
-    }
-
-    .level-text {
-        font-size: 24px;
-    }
-
-    #to-top {
-        width: 44px;
+    #add-btn {
+        min-width: 120px;
         height: 44px;
-        right: 16px;
-        bottom: 16px;
-        font-size: 20px;
-    }
-    
-    #help-btn {
-        top: 12px;
-        right: 12px;
-        width: 42px;
-        height: 42px;
         font-size: 18px;
+        margin-top: 0;
+        padding: 0 22px;
     }
 
     #category-manager {
-        width: calc(100% - 40px);
-        padding: 20px 18px;
+        position: relative;
+        width: calc(100% - 24px);
+        max-width: 360px;
+        margin: 16px auto 0;
+        padding: 18px 16px;
         overflow: visible;
     }
 
     #category-manager::before,
     #category-manager::after {
-        display: block;
-        width: 20px;
-        top: 10px;
-        height: calc(100% - 20px);
+        content: "";
+        position: absolute;
+        top: 12px;
+        width: 16px;
+        height: calc(100% - 24px);
         z-index: 0;
+        border-radius: 8px;
     }
+
     #category-manager::before {
-        left: -8px;
+        left: -6px;
     }
 
     #category-manager::after {
-        right: -8px;
+        right: -6px;
     }
 
     #category-manager > * {
@@ -2170,4 +2132,25 @@ li.complete-animate {
         z-index: 1;
     }
 
+    #category-manager h2 {
+        font-size: 18px;
+        margin-bottom: 14px;
+        padding: 4px 16px;
+    }
+
+    #bulk-category-input,
+    #category-filter {
+        width: 100%;
+        max-width: 100%;
+        height: 34px;
+        font-size: 14px;
+    }
+
+    #start-category-btn,
+    #apply-category-btn,
+    #cancel-category-btn {
+        min-width: 140px;
+        height: 42px;
+        font-size: 14px;
+    }
 }
