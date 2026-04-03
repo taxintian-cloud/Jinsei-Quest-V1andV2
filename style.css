@@ -855,7 +855,7 @@ li.complete-animate {
 /* タイトル */
 .quest-title {
     font-weight: bold;
-    font-size: 20px;
+    font-size: 17px;
     color: #2b1a0f;
     text-shadow: 1px 1px 0 #fff3d6;
 }
@@ -1431,10 +1431,10 @@ li.complete-animate {
 }
 
 .quest-category {
-        font-size: 12px;
+        font-size: 10px;
         color: #3d7edb;
         background: rgba(77, 166, 255, 0.12);
-        padding: 2px 8px;
+        padding: 1px 6px;
         border-radius: 999px;
         white-space: nowrap;
 }
@@ -1941,40 +1941,38 @@ li.complete-animate {
         margin: 0 0 6px;
         padding: 4px 18px;
     }
-
-    @media (max-width: 480px) {
-        .quest-form-row {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        #quest-input {
-            width: 92%;
-            max-width: 92%;
-            height: 34px;
-            font-size: 13px;
-        }
-
-        #quest-size,
-        #deadline-input {
-            width: 44%;
-            max-width: 44%;
-            flex: 0 0 44%;
-            height: 34px;
-            font-size: 13px;
-        }
-
-        #category-input {
-            width: 92%;
-            max-width: 92%;
-            flex: 0 0 92%;
-            height: 34px;
-            font-size: 13px;
-        }
+    .quest-form-row {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
     }
+
+    #quest-input {
+        width: 92%;
+        max-width: 92%;
+        height: 34px;
+        font-size: 13px;
+    }
+
+    #quest-size,
+    #deadline-input {
+        width: 44%;
+        max-width: 44%;
+        flex: 0 0 44%;
+        height: 34px;
+        font-size: 13px;
+    }
+
+    #category-input {
+        width: 92%;
+        max-width: 92%;
+        flex: 0 0 92%;
+         height: 34px;
+        font-size: 13px;
+    }
+    
 
     #add-btn {
         min-width: 110px;
@@ -2005,6 +2003,14 @@ li.complete-animate {
         min-width: 140px;
         height: 40px;
         font-size: 13px;
+    }
+    .quest-title {
+        font-size: 15px;
+    }
+
+    .quest-category {
+        font-size: 9px;
+        padding: 1px 5px;
     }
 }
 
