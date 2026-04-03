@@ -131,20 +131,6 @@ h2, h3 {
     color: #ffffff;
 }
 
-/* =========================
-   Quest Form / Category Manager
-========================= */
-
-.quest-form-desktop,
-.category-manager-desktop {
-    display: block;
-}
-
-.quest-form-mobile,
-.category-manager-mobile {
-    display: none;
-}
-
 /* ----- PC: クエスト案内所 ----- */
 #quest-form {
     position: relative;
@@ -283,134 +269,7 @@ h2, h3 {
         2px 2px 0 #3a2e1f;
 }
 
-/* ----- Mobile common ----- */
-.mobile-board-title {
-    width: fit-content;
-    margin: 0 auto 14px;
-    padding: 6px 18px;
-    border-radius: 999px;
-    color: #5a2f12;
-    background: linear-gradient(to bottom, #f5e2b8, #d8b36a);
-    border: 2px solid #5a3818;
-    box-shadow:
-        0 2px 6px rgba(0,0,0,0.2),
-        inset 0 1px 0 rgba(255,255,255,0.4);
-    text-shadow:
-        1px 1px 0 #fff3d6,
-        2px 2px 0 #3a2e1f;
-    font-size: 20px;
-}
 
-/* ----- SP ----- */
-@media (max-width: 640px) {
-    .quest-form-desktop,
-    .category-manager-desktop {
-        display: none;
-    }
-
-    .quest-form-mobile,
-    .category-manager-mobile {
-        display: block;
-    }
-
-    #quest-form {
-        max-width: 100%;
-        margin: 18px auto 0;
-    }
-
-    .quest-form-mobile {
-        position: relative;
-        width: min(100%, 400px);
-        margin: 0 auto;
-        padding: 18px 18px 20px;
-        background:
-            linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.06)),
-            linear-gradient(180deg, #f5dfb4 0%, #e7c68e 100%);
-        border: 3px solid rgba(99, 57, 16, 0.48);
-        border-radius: 12px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
-        overflow: visible;
-    }
-
-    .quest-form-mobile::before,
-    .quest-form-mobile::after {
-        content: "";
-        position: absolute;
-        top: 18px;
-        width: 28px;
-        height: calc(100% - 36px);
-        border-radius: 999px;
-        background:
-            linear-gradient(90deg, rgba(70,36,13,0.82), rgba(255,236,184,0.35) 38%, rgba(90,48,18,0.9) 100%),
-            linear-gradient(180deg, #c1802f, #7a4318);
-        box-shadow:
-            inset 0 0 12px rgba(0,0,0,0.28),
-            0 4px 10px rgba(0,0,0,0.18);
-    }
-
-    .quest-form-mobile::before {
-        left: -10px;
-    }
-
-    .quest-form-mobile::after {
-        right: -10px;
-    }
-
-    .quest-form-mobile-inner {
-        position: relative;
-        z-index: 1;
-        padding: 2px 20px 0;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .quest-form-mobile input,
-    .quest-form-mobile select {
-        width: 100%;
-        height: 42px;
-        border: 2px solid #3a2e1f;
-        border-radius: 4px;
-        background: #fff9e8;
-        padding: 0 12px;
-        font-size: 16px;
-    }
-
-    .quest-submit-mobile {
-        display: flex;
-        justify-content: center;
-        margin-top: 6px;
-    }
-
-    #add-btn-mobile {
-        width: fit-content;
-        min-width: 132px;
-        height: 48px;
-        font-size: 22px;
-        padding: 0 24px;
-    }
-
-    #category-manager {
-        width: min(100%, 400px);
-        margin: 16px auto 0;
-        padding: 18px 16px 20px;
-    }
-
-    #category-manager::before,
-    #category-manager::after {
-        top: 12px;
-        width: 18px;
-        height: calc(100% - 24px);
-    }
-
-    #category-manager::before {
-        left: -6px;
-    }
-
-    #category-manager::after {
-        right: -6px;
-    }
-}
 
 .quest-list-title-wrap {
     max-width: 520px;
@@ -1917,77 +1776,194 @@ li.complete-animate {
     }
 }
 
-/*@media (max-width: 1600px) {
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    #player-status {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+
     #quest-form {
-        max-width: 760px !important;
-        margin: 20px auto !important;
-        box-sizing: border-box !important;
+        max-width: 100%;
+        margin: 16px auto;
     }
 
     .quest-form-inner {
-        position: absolute !important;
-        top: 47% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 72% !important;
-        max-width: 700px !important;
-        margin: 0 !important;
-        gap: 12px !important;
-    }
-
-    .quest-form-row {
-        width: 92% !important;
-        flex-direction: column !important;
-        gap: 8px !important;
-    }
-
-    #quest-input {
-        flex: none !important;
-        height: 48px !important;
-        width: 100% !important;
-        font-size: 16px !important;
-        box-sizing: border-box !important;
-    }
-
-    #quest-size,
-    #deadline-input,
-    #category-input {
-        flex: none !important;
-        
-        height: 36px !important;
-        font-size: 14px !important;
-        box-sizing: border-box !important;
-    }
-
-    #category-input {
-        width: 100% !important;
+        width: 78%;
+        top: 48%;
+        gap: 8px;
     }
 
     #quest-form h2 {
-        font-size: 22px !important;
-        margin-bottom: 6px !important;
-    }
-    #player-name {
-        padding: 12px !important;
-        gap: 6px !important;
-        align-items: center;
+        font-size: 24px;
+        margin-bottom: 8px;
+        padding: 4px 18px;
     }
 
-    #player-name label {
-        font-size: 14px !important;
+    .quest-form-row {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #quest-input,
+    #quest-size,
+    #deadline-input,
+    #category-input {
+        width: 100%;
+        max-width: 100%;
+        height: 38px;
+        font-size: 14px;
+    }
+
+    .quest-submit {
+        margin-top: 8px;
+    }
+
+    #add-btn {
+        min-width: 120px;
+        height: 46px;
+        font-size: 18px;
+        padding: 0 22px;
+        margin-top: 0;
+    }
+
+    #category-manager {
+        width: calc(100% - 24px);
+        max-width: 360px;
+        margin: 16px auto 0;
+        padding: 18px 16px;
+    }
+
+    #category-manager::before,
+    #category-manager::after {
+        width: 18px;
+        top: 12px;
+        height: calc(100% - 24px);
+    }
+
+    #category-manager::before {
+        left: -6px;
+    }
+
+    #category-manager::after {
+        right: -6px;
+    }
+
+    #category-manager h2 {
+        font-size: 18px;
+        margin-bottom: 14px;
+        padding: 4px 16px;
+    }
+
+    #bulk-category-input,
+    #category-filter {
+        width: 100%;
+        max-width: 100%;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    #start-category-btn,
+    #apply-category-btn,
+    #cancel-category-btn {
+        min-width: 160px;
+        height: 42px;
+        font-size: 14px;
+    }
+
+    .quest-list-title-wrap {
+        max-width: 100%;
+        min-height: 88px;
+        margin: 12px auto;
+        padding: 12px 24px;
+    }
+
+    .quest-list-title-wrap h2 {
+        font-size: 30px;
+    }
+
+    .status-wrapper {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .status-left,
+    .status-right {
+        width: 100%;
+    }
+
+    .status-left {
+        text-align: left;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .status-right {
         text-align: center;
     }
+}
 
-    #player-name-input {
-        width: 200px !important;   /* ←ここが本命 */
-        /*max-width: none !important;
-        text-align: center;
+@media (max-width: 480px) {
+    #quest-form {
+        max-width: 390px;
+        margin-top: 20px;
     }
 
-    #save-name-btn {
-        height: 40px !important;
-        padding: 0 20px !important;
-        font-size: 14px !important;
+    .quest-form-inner {
+        width: 68%;
+        top: 48%;
+        gap: 6px;
     }
-}*/
+
+    #quest-form h2 {
+        font-size: 17px;
+        margin: 0 0 6px;
+        padding: 4px 16px;
+    }
+
+    #quest-input,
+    #quest-size,
+    #deadline-input,
+    #category-input {
+        width: 96%;
+        max-width: 96%;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    #add-btn {
+        min-width: 110px;
+        height: 42px;
+        font-size: 16px;
+        padding: 0 18px;
+    }
+
+    #category-manager {
+        max-width: 350px;
+        padding: 16px 14px;
+    }
+
+    #category-manager::before,
+    #category-manager::after {
+        width: 16px;
+    }
+
+    #bulk-category-input,
+    #category-filter {
+        height: 34px;
+        font-size: 13px;
+    }
+
+    #start-category-btn,
+    #apply-category-btn,
+    #cancel-category-btn {
+        min-width: 140px;
+        height: 40px;
+        font-size: 13px;
+    }
+}
 
