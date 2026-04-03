@@ -2049,18 +2049,24 @@ li.complete-animate {
     #quest-size,
     #deadline-input,
     #category-input {
-        width: 100%;
-        max-width: 100%;
+        width: 92%;
+        max-width: 92%;
     }
 
     #quest-form {
-        margin-top: 36px;
+        margin-top: 28px;
+        max-width: 100%;
     }
 
     .quest-form-inner {
+        top: 50%;
+        width: 78%;
+        gap: 10px;
+    }
+
+    .quest-form-row {
         width: 100%;
-        padding-top: 0;
-        padding-bottom: 0;
+        gap: 10px;
     }
 
     #quest-form h2 {
@@ -2104,6 +2110,10 @@ li.complete-animate {
         font-size: 18px;
     }
 
+    #add-btn {
+        margin-top: 8px;
+    }
+
     #player-name {
         padding: 16px;
     }
@@ -2133,15 +2143,33 @@ li.complete-animate {
     }
 
     #category-manager {
-        width: 100%;
+        width: calc(100% - 32px);
         max-width: 100%;
         box-sizing: border-box;
-        padding: 18px 12px;
+        padding: 18px 16px;
+        overflow: visible;
     }
 
     #category-manager::before,
     #category-manager::after {
-        display: none;
+        display: block;
+        width: 28px;
+        top: 14px;
+        height: calc(100% - 28px);
+        border-radius: 6px;
+        z-index: 0;
+    }
+    #category-manager::before {
+        left: -10px;
+    }
+
+    #category-manager::after {
+        right: -10px;
+    }
+
+    #category-manager > * {
+        position: relative;
+        z-index: 1;
     }
 
 }
