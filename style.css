@@ -135,7 +135,7 @@ h2, h3 {
     position: relative;
     width: 100%;
     max-width: 760px;
-    margin: 20px auto;
+    margin: 32px auto 0;
 }
 
 .quest-form-bg {
@@ -2045,6 +2045,18 @@ li.complete-animate {
         gap: 16px;
     }
 
+    #quest-input,
+    #quest-size,
+    #deadline-input,
+    #category-input {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #quest-form {
+        margin-top: 36px;
+    }
+
     .quest-form-inner {
         width: 100%;
         padding-top: 0;
@@ -2118,6 +2130,18 @@ li.complete-animate {
         width: 42px;
         height: 42px;
         font-size: 18px;
+    }
+
+    #category-manager {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 18px 12px;
+    }
+
+    #category-manager::before,
+    #category-manager::after {
+        display: none;
     }
 
 }
