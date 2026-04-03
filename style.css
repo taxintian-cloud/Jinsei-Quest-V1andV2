@@ -195,7 +195,7 @@ h2, h3 {
 
 #quest-input {
     width: 100%;
-    max-width: 420px;
+    max-width: 380px;
 }
 
 #quest-size,
@@ -207,8 +207,8 @@ h2, h3 {
 
 #category-input {
     width: 100%;
-    max-width: 420px;
-    flex: 0 0 420px;
+    max-width: 380px;
+    flex: 0 0 380px;
 }
 
 .quest-submit {
@@ -2004,6 +2004,7 @@ li.complete-animate {
         height: 40px;
         font-size: 13px;
     }
+
     .quest-title {
         font-size: 15px;
     }
