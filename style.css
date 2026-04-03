@@ -1950,8 +1950,6 @@ li.complete-animate {
     }
 
     #quest-input {
-        width: 92%;
-        max-width: 92%;
         height: 34px;
         font-size: 13px;
     }
@@ -1966,8 +1964,6 @@ li.complete-animate {
     }
 
     #category-input {
-        width: 92%;
-        max-width: 92%;
         flex: 0 0 92%;
          height: 34px;
         font-size: 13px;
