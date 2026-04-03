@@ -2050,23 +2050,24 @@ li.complete-animate {
     #deadline-input,
     #category-input {
         width: 100%;
-        max-width: 100%;
+        max-width: 260px;
+        margin: 0 auto;
+        display: block;
     }
 
     #quest-form {
-        margin-top: 52px;
+        margin-top: 60px;
         max-width: 100%;
     }
 
     .quest-form-inner {
         top: 50%;
-        width: 74%;
-        gap: 8px;
+        width: 70%;
     }
 
     .quest-form-row {
-        width: 100%;
-        gap: 10px;
+        width: 80%;
+        margin: 0 auto;
     }
 
     #quest-form h2 {
@@ -2151,7 +2152,7 @@ li.complete-animate {
     #category-manager::before,
     #category-manager::after {
         display: block;
-        width: 26px;
+        width: 20px;
         top: 10px;
         height: calc(100% - 20px);
         z-index: 0;
