@@ -1819,7 +1819,7 @@ li.complete-animate {
 
     #quest-input {
         width: 100%;
-        max-width: 320px;
+        max-width: 260px;
     }
 
     #quest-size,
@@ -1831,8 +1831,8 @@ li.complete-animate {
 
     #category-input {
         width: 100%;
-        max-width: 320px;
-        flex: 0 0 320px;
+        max-width: 260px;
+        flex: 0 0 260px;
     }
 
     .quest-submit {
