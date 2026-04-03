@@ -2039,8 +2039,8 @@ li.complete-animate {
     #quest-form {
         position: relative;
         width: 100%;
-        max-width: 360px;
-        margin: 28px auto 0;
+        max-width: 390px;
+        margin: 20px auto 0;
     }
 
     .quest-form-bg {
@@ -2051,21 +2051,21 @@ li.complete-animate {
 
     .quest-form-inner {
         position: absolute;
-        top: 50%;
+        top: 48%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 62%;
+        width: 68%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
 
     #quest-form h2 {
-        font-size: 18px;
-        margin: 0 0 10px;
-        padding: 4px 18px;
-        transform: translateY(4px);
+        font-size: 17px;
+        margin: 0 0 6px;
+        padding: 4px 16px;
+        transform: translateY(0);
     }
 
     .quest-form-row {
@@ -2081,10 +2081,10 @@ li.complete-animate {
     #quest-size,
     #deadline-input,
     #category-input {
-        width: 92%;
-        max-width: 92%;
-        height: 34px;
-        font-size: 14px;
+        width: 96%;
+        max-width: 96%;
+        height: 32px;
+        font-size: 13px;
         margin: 0;
     }
 
@@ -2114,18 +2114,18 @@ li.complete-animate {
         content: "";
         position: absolute;
         top: 12px;
-        width: 12px;
+        width: 16px;
         height: calc(100% - 24px);
         z-index: 0;
         border-radius: 8px;
     }
 
     #category-manager::before {
-        left: -4px;
+        left: -6px;
     }
 
     #category-manager::after {
-        right: -4px;
+        right: -6px;
     }
 
     #category-manager > * {
