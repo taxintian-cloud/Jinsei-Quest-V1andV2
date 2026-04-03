@@ -2063,8 +2063,9 @@ li.complete-animate {
 
     #quest-form h2 {
         font-size: 18px;
-        margin: 0 0 6px;
+        margin: 0 0 10px;
         padding: 4px 18px;
+        transform: translateY(4px);
     }
 
     .quest-form-row {
@@ -2080,8 +2081,8 @@ li.complete-animate {
     #quest-size,
     #deadline-input,
     #category-input {
-        width: 100%;
-        max-width: 100%;
+        width: 92%;
+        max-width: 92%;
         height: 34px;
         font-size: 14px;
         margin: 0;
@@ -2113,18 +2114,18 @@ li.complete-animate {
         content: "";
         position: absolute;
         top: 12px;
-        width: 16px;
+        width: 12px;
         height: calc(100% - 24px);
         z-index: 0;
         border-radius: 8px;
     }
 
     #category-manager::before {
-        left: -6px;
+        left: -4px;
     }
 
     #category-manager::after {
-        right: -6px;
+        right: -4px;
     }
 
     #category-manager > * {
