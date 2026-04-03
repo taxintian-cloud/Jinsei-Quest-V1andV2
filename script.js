@@ -15,7 +15,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyArqWWZCA1PEikry5v4kmTpr-3XaUMshV8",
+  apiKey: "",
   authDomain: "jinsei-quest.firebaseapp.com",
   projectId: "jinsei-quest",
   storageBucket: "jinsei-quest.firebasestorage.app",
